@@ -97,8 +97,9 @@ public class Main {
       }
     }
 
-    // enter the amount paid for the current sale of the selected table, then click on the Pay button
-    JLabel labelAmount = new JLabel("Amount paid");
+    // enter the amount paid for the current sale of the selected table, press return and
+    // then click on the Pay button
+    JLabel labelAmount = new JLabel("<html>Amount paid (enter and press Return)</html>");
     int[] posLabel = position(0, 5);
     labelAmount.setBounds(posLabel[0], posLabel[1], BUTTON_WIDTH, BUTTON_HEIGHT);
     frame.add(labelAmount);
