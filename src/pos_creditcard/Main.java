@@ -19,7 +19,8 @@ public class Main {
     pointOfSale.printReceiptOfSale(idSale);
     double handedAmount = 20.;
     pointOfSale.payOneSaleCash(idSale, handedAmount);
-
+    pointOfSale.printPayment(idSale);
+    System.out.println("---------------------------------");
     int idSale2 = pointOfSale.makeNewSale();
     pointOfSale.addLineItemToSale(idSale2, "Nestea", 1);
     pointOfSale.printReceiptOfSale(idSale2);
