@@ -1,0 +1,168 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package pos {
+  class PointOfSale {
+    - sales : List<Sale>
+    - productCatalog : ProductCatalog
+    - cashBox : CashBox
+    - changeMaker : ChangeMaker
+    - idLastSale : int
+    + PointOfSale(ProductCatalog, CashBox, ChangeMaker)
+    + makeNewSale() : int
+    + addLineItemToSale(idSale:int, productName:String, qty:int) : void
+    + printReceiptOfSale(idSale:int) : void
+    + payOneSaleCash(idSale:int, moneyHanded:MoneyBag) : void
+    + payOneSaleCreditCard(idSale:int, ccNumber:String) : void
+    + printPayment(idSale:int) : void
+    + printCashBox() : void
+    + setChangeMaker(cm:ChangeMaker) : void
+  }
+
+  class Sale {
+    - id : int
+    - saleLineItems : List<SaleLineItem>
+    - payment : Payment
+    - isPaid : boolean
+    + Sale(id:int)
+    + addLineItem(ProductSpecification,int) : void
+    + printReceipt() : void
+    + payInCash(money:MoneyBag, changeMaker:ChangeMaker, cashBox:CashBox) : void
+    + payByCreditCard(number:String) : void
+    + printPayment() : void
+    - total() : double
+    + getId() : int
+  }
+
+  class SaleLineItem {
+    - productSpecification : ProductSpecification
+    - quantity : int
+    + SaleLineItem(ProductSpecification,int)
+    + incrementQuantity(q:int) : void
+    + subtotal() : double
+    + print() : void
+  }
+
+  class ProductCatalog {
+    - byName : Map<String,ProductSpecification>
+    + ProductCatalog()
+    + add(ProductSpecification) : void
+    + searchByName(String) : ProductSpecification
+  }
+
+  class ProductSpecification {
+    - name : String
+    - price : double
+    + ProductSpecification(String,double)
+    + getName() : String
+    + getPrice() : double
+  }
+}
+
+package pos.payment {
+  abstract class Payment {
+    + print(total:double) : void
+  }
+
+  class PaymentInCash extends Payment {
+    - handed : MoneyBag
+    - change : MoneyBag
+    - accepted : boolean
+    + PaymentInCash(MoneyBag)
+    + process(total:double, changeMaker:ChangeMaker, cashBox:CashBox) : void
+    + print(total:double) : void
+  }
+
+  class PaymentCreditCard extends Payment {
+    - maskedNumber : String
+    + PaymentCreditCard(String)
+    + print(total:double) : void
+  }
+}
+
+package pos.money {
+  class CashBox {
+    - contents : MoneyBag
+    + CashBox(initial:MoneyBag)
+    + add(m:MoneyBag) : void
+    + canGive(m:MoneyBag) : boolean
+    + remove(m:MoneyBag) : void
+    + total() : double
+    + snapshot() : MoneyBag
+    + print() : void
+  }
+
+  class MoneyBag {
+    - quantities : EnumMap<Denomination,Integer>
+    + MoneyBag()
+    + add(d:Denomination, n:int) : void
+    + addAll(other:MoneyBag) : void
+    + canCover(other:MoneyBag) : boolean
+    + subtractAll(other:MoneyBag) : void
+    + total() : double
+    + toLines() : List<String>
+    + copy() : MoneyBag
+  }
+
+  enum Denomination {
+    C001(0.01)
+    C002(0.02)
+    C005(0.05)
+    C010(0.10)
+    C020(0.20)
+    C050(0.50)
+    E1(1.0)
+    E2(2.0)
+    E5(5.0)
+    E10(10.0)
+    E20(20.0)
+    + getValue() : double
+    + descending() : List<Denomination>
+  }
+}
+
+package pos.change {
+  interface ChangeMaker {
+    + makeChange(amount:double, cashBox:CashBox) : MoneyBag
+    + name() : String
+  }
+
+  class GreedyChangeMaker implements ChangeMaker
+  class RandomChangeMaker implements ChangeMaker
+}
+
+package pos_creditcard {
+  class Main {
+    + main(args:String[]) : void
+  }
+}
+
+' ======================
+' RELATIONSHIPS
+' ======================
+
+Main --> PointOfSale : uses >
+Main --> ProductCatalog
+Main --> CashBox
+Main --> ChangeMaker
+Main --> MoneyBag
+
+PointOfSale --> Sale : manages >
+PointOfSale --> ProductCatalog
+PointOfSale --> CashBox
+PointOfSale --> ChangeMaker
+
+Sale o-- Payment
+Payment <|-- PaymentInCash
+Payment <|-- PaymentCreditCard
+
+ChangeMaker <|.. GreedyChangeMaker
+ChangeMaker <|.. RandomChangeMaker
+
+CashBox o-- MoneyBag
+MoneyBag o-- Denomination
+
+Sale --> SaleLineItem
+SaleLineItem --> ProductSpecification
+@enduml

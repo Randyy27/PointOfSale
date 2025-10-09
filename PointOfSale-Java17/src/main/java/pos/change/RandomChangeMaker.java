@@ -25,8 +25,11 @@ public class RandomChangeMaker implements ChangeMaker {
                 if (candidates.isEmpty()) break;
                 Denomination pick = candidates.get(rnd.nextInt(candidates.size()));
                 change.add(pick, 1);
-                tempAvail.add(pick, -1);
+                MoneyBag one = new MoneyBag();
+                one.add(pick, 1);
+                tempAvail.subtractAll(one);
                 remaining = round2(remaining - pick.getValue());
+
             }
             if (remaining == 0.0) return change;
         }
